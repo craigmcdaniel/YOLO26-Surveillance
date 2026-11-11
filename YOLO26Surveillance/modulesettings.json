@@ -1,0 +1,83 @@
+{
+  "Modules": {
+    "YOLO26Surveillance": {
+      "Name": "YOLO26 Surveillance",
+      "Version": "0.1.0",
+      "PublishingInfo": {
+        "Description": "Surveillance-focused YOLO26 object detection using a filtered ONNX output graph and ONNX Runtime.",
+        "Category": "Computer Vision",
+        "Stack": "Python, ONNX Runtime, YOLO26",
+        "License": "Development",
+        "Author": "Craig McDaniel",
+        "BasedOn": "Ultralytics YOLO26",
+        "BasedOnUrl": "https://github.com/ultralytics/ultralytics"
+      },
+      "LaunchSettings": {
+        "AutoStart": true,
+        "FilePath": "detect_adapter.py",
+        "Runtime": "python3.12",
+        "RuntimeLocation": "Local",
+        "PostStartPauseSecs": 1,
+        "Queue": "yolo26_surveillance_queue",
+        "Parallelism": 1
+      },
+      "GpuOptions": {
+        "InstallGPU": true,
+        "EnableGPU": true,
+        "AcceleratorDeviceName": null,
+        "HalfPrecision": "enable"
+      },
+      "InstallOptions": {
+        "Platforms": ["all", "!windows-arm64"],
+        "ModuleReleases": [
+          {
+            "ModuleVersion": "0.1.0",
+            "ServerVersionRange": ["2.9.4", ""],
+            "ReleaseDate": "2026-11-11",
+            "ReleaseNotes": "Initial development release."
+          }
+        ]
+      },
+      "ModelRequirements": [
+        {
+          "Task": "Object Detection",
+          "Architecture": "YOLO26",
+          "Format": "ONNX"
+        }
+      ],
+      "RouteMaps": [
+        {
+          "Name": "YOLO26 Surveillance Object Detector",
+          "Route": "vision/yolo26-surveillance",
+          "Method": "POST",
+          "Command": "detect",
+          "Description": "Detects surveillance-relevant objects using the filtered YOLO26 ONNX model.",
+          "Inputs": [
+            {
+              "Name": "image",
+              "Type": "File",
+              "Description": "The image to analyze."
+            },
+            {
+              "Name": "min_confidence",
+              "Type": "Float",
+              "Description": "Minimum confidence from 0.0 to 1.0.",
+              "DefaultValue": 0.4,
+              "MinValue": 0.0,
+              "MaxValue": 1.0
+            }
+          ],
+          "Outputs": [
+            {"Name": "success", "Type": "Boolean", "Description": "True if successful."},
+            {"Name": "message", "Type": "String", "Description": "Summary of the inference operation."},
+            {"Name": "error", "Type": "String", "Description": "Error information if unsuccessful."},
+            {"Name": "predictions", "Type": "Object[]", "Description": "Detected objects."},
+            {"Name": "count", "Type": "Integer", "Description": "Number of objects detected."},
+            {"Name": "inferenceMs", "Type": "Integer", "Description": "Inference time in milliseconds."},
+            {"Name": "processMs", "Type": "Integer", "Description": "Total processing time in milliseconds."}
+          ]
+        }
+      ]
+    }
+  }
+}
