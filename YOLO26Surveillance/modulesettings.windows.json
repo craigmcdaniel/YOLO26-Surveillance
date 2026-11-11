@@ -1,0 +1,9 @@
+{
+  "Modules": {
+    "YOLO26Surveillance": {
+      "LaunchSettings": {
+        "Runtime": "python3.12"
+      }
+    }
+  }
+}
