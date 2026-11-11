@@ -1,0 +1,9 @@
+# Local Python runtimes and generated files
+.venv/
+__pycache__/
+*.pyc
+*.log
+.cache/
+# Local camera evidence and temporary extracts
+local-test/
+*.tmp
