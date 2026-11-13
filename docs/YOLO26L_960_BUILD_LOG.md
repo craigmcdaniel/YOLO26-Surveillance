@@ -203,3 +203,37 @@ User explicitly prioritizes proceeding to a live test during cleanup, rather tha
 The `test` branch now contains a **separate experimental** `experiments/yolo26l-960/yolo26_surveillance.py` derived from the current detector. Differences from original: reads static BCHW model input dimensions from ONNX Runtime, validates named `surveillance_output` shape [1,12,N], and uses model-derived height/width for aspect-preserving resize and letterboxing. Original `YOLO26Surveillance/yolo26_surveillance.py` unchanged. This file has not yet been executed in an isolated real-image test.
 
 Next: stage the experimental adapter under `G:\YOLO26-L960\live-test`, verify DML inference on a real test image, and inventory the **actual running CodeProject.AI service/module locations and launch configuration** before deciding how to switch model paths or register an independent test endpoint. Do not blindly patch live service files; source may reside on C:, but new work stays on G:/H:. When switching, preserve original settings, module and model and ensure rollback. No Frigate changes; preserve auth.enabled=false, recording, and existing production alert routing.
+
+## Stage 7 — first live Blue Iris YOLO26l-960 detection confirmed (2026-11-13)
+
+User supplied live Blue Iris AI result for capture `Camera02.20261113_142837Z.11316.16385-0.dat` (filename timestamp 2026-11-13 14:28:37 UTC):
+
+```json
+{
+  "api": "custom",
+  "found": {
+    "success": true,
+    "error": null,
+    "message": "",
+    "predictions": [
+      {
+        "category": 1,
+        "label": "person",
+        "confidence": 0.830482721328735,
+        "x_min": 150,
+        "x_max": 530,
+        "y_min": 0,
+        "y_max": 469
+      }
+    ],
+    "count": 1,
+    "moduleId": "yolo26l-surveillance-960.onnx",
+    "executionProvider": "ONNXRunTime: DirectML: NVIDIA Quadro RTX 4000 with Max-Q Design",
+    "analysisRoundTripMs": 169
+  }
+}
+```
+
+**Confirmed:** The Blue Iris-side AI interface successfully invoked the model named `yolo26l-surveillance-960.onnx` through its custom API and returned a person detection at 83.05% confidence; execution provider reports DirectML on NVIDIA Quadro RTX 4000 with Max-Q Design. This is a **live integration milestone** independent from INFINITY's earlier RX 9070 XT test.
+
+**Do not conflate:** 169 ms `analysisRoundTripMs` is Blue Iris-reported end-to-end analysis round trip, while INFINITY's 24.07 ms is median `session.run` inference on synthetic/collected test frames. The GPU and timing scope differ. Image itself and ground-truth person presence have not been independently inspected; confirmed classification is the returned model prediction, not yet human-verified accuracy. No change to Frigate, Node-RED or production route was required to report this result. Preserve this capture identifier as first live evidence.
