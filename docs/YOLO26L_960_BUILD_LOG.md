@@ -366,3 +366,9 @@ User uploaded complete summary.csv and responses.jsonl. Analysis of those files 
 - This validates live CPAI HTTP/SDK end-to-end viability with high success rate, **not zero failures**. Frigate was disconnected at the time of the test.
 
 Recommended next checkpoint: retry the three aborted requests only; refrain from rerunning the 859 successes. Preserve source images and raw records.
+
+## Scope clarification — proof-of-concept versus pruning roadmap (2026-11-13)
+
+User explicitly clarified that this was a **cheap experiment to see whether deeper YOLO26 optimization was achievable**, not an initial commitment to a production-quality pruned model. The existing filtered `Gather` output is a deliberate fast feasibility test: custom ONNX builds, cross-vendor DirectML execution, live Blue Iris detections, and full CodeProject.AI API replay have demonstrated that the approach can be deployed. The measured slower YOLO26l-960 inference should not be attributed to the class filter without profiling.
+
+Future research reference supplied by user: AMD official Ultralytics/ROCm article, https://rocm.blogs.amd.com/ecosystems-and-partners/ultralytics-amd/README.html . Consider genuine class-head pruning and native end-to-end outputs as **distinct future experiments**, not modifications to existing production artifacts. Preserve source weights, production ONNX files, and experimental baseline; keep exploratory build work on G: and track provenance in GitHub.
