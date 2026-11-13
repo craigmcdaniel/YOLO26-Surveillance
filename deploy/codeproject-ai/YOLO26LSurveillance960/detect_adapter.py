@@ -24,7 +24,7 @@ class YOLO26LSurveillance960Adapter(ModuleRunner):
             "YOLO26_SURVEILLANCE_MODEL",
             os.path.join(
                 os.path.dirname(os.path.abspath(__file__)),
-                "yolo26l-surveillance-960.onnx",
+                r"G:\YOLO26-L960\yolo26l-surveillance-960.onnx",
             ),
         )
 
