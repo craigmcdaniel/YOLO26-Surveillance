@@ -47,3 +47,7 @@ Test all exports against the same held-out images and expected boxes; compare ac
 - Ultralytics YOLO26 head/output modes: https://docs.ultralytics.com/models/yolo26/
 - MIGraphX: https://rocm.docs.amd.com/projects/AMDMIGraphX
 - ONNX Runtime MIGraphX provider: https://onnxruntime.ai/docs/execution-providers/MIGraphX-ExecutionProvider.html
+
+## INFINITY operating-system correction (2026-11-13)
+
+User confirms INFINITY is **currently booted into Windows 11**; the separate **Windows Server 2025 installation still exists and remains available**. Earlier feasibility discussion incorrectly treated Server 2025 as the active OS. The synthetic-data and GPU-compute proof of concept should target the current Windows 11 boot, with Radeon RX 9070 XT 16 GB and 32 GB system RAM. Do not propose reinstalling or migrating OSs. Keep Blender scenes, assets, generated images, annotations, training checkpoints and test artifacts on G:, not C: or H:. The server installation and working CodeProject.AI deployment should remain untouched during the experimental phase. Confirm actual versions and GPU backend support before claiming runtime success.
