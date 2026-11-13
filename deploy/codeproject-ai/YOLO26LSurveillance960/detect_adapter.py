@@ -22,10 +22,7 @@ class YOLO26LSurveillance960Adapter(ModuleRunner):
 
         self.model_path = os.environ.get(
             "YOLO26_SURVEILLANCE_MODEL",
-            os.path.join(
-                os.path.dirname(os.path.abspath(__file__)),
-                r"G:\YOLO26-L960\yolo26l-surveillance-960.onnx",
-            ),
+            r"G:\YOLO26-L960\yolo26l-surveillance-960.onnx",
         )
 
         self._num_items_found = 0
@@ -156,4 +153,4 @@ class YOLO26LSurveillance960Adapter(ModuleRunner):
 
 
 if __name__ == "__main__":
-    YOLO26SurveillanceAdapter().start_loop()
+    YOLO26LSurveillance960Adapter().start_loop()
