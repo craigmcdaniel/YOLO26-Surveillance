@@ -328,3 +328,13 @@ User's INFINITY `Get-CimInstance Win32_Process` output:
 - Both processes reference the production adapter. The separate **module-local virtualenv** is now confirmed and explains why package imports failed against base runtime. No inference yet about which process is doing the actual ONNX execution, or whether candidate module's venv has been created. The candidate has not appeared in CPAI module-list/status; activation still pending.
 
 Plan: leave live YOLO26s environment untouched; inspect its package versions and candidate module's installation state read-only. Use CodeProject.AI-supported module installation/start pathway to supply an independent runtime for the candidate and register it. C: is accepted for deployed application/runtime files; G: remains build/model source; H: excluded.
+
+### Candidate module virtualenv missing; exact working dependencies confirmed (2026-11-13)
+
+User ran read-only package inventory via production module venv:
+- Production Python 3.12 module-local environment at `C:\Program Files\CodeProject\AI\modules\YOLO26Surveillance\bin\windows\python312\venv\Scripts\python.exe`.
+- `numpy==2.5.4`, `Pillow==13.0.0`, `onnxruntime-directml==1.24.4`, `CodeProject-AI-SDK==0.0.21`; venv reports installed modules in its own `Lib\site-packages`.
+- Candidate module directory `C:\Program Files\CodeProject\AI\modules\YOLO26LSurveillance960` exists; its `bin\windows\python312\venv\Scripts\python.exe` **does not yet exist**.
+- Candidate filtered ONNX remains present on `G:\YOLO26-L960\yolo26l-surveillance-960.onnx`.
+
+**Next non-disruptive step:** create a separate module-local Python 3.12 venv with the CodeProject.AI base Python, install those pinned versions into candidate venv only (prefer local pip temp/cache on G:), then verify imports and DML provider from candidate interpreter before restarting CPAI for discovery. Do not pip install into production venv or base Python; do not restart production during runtime setup. The user has explicitly authorized installed CodeProject.AI module/runtime files on C: while maintaining development artifacts/model on G:.
