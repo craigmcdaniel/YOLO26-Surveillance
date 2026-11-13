@@ -251,3 +251,13 @@ Consequence: the reported 83.048% person detection meets the 50% confidence cond
 ### Live YOLO26s vehicle result — Cam1 (2026-11-13)
 
 During side-by-side live Blue Iris testing, user supplied result for `Cam1.20261113_130001Z.1480626.17-0.dat` (filename timestamp 2026-11-13 13:00:01 UTC). Custom AI result: success true; `moduleId=yolo26s-filtered-test.onnx`; `executionProvider=ONNXRunTime: DirectML: NVIDIA Quadro RTX 4000 with Max-Q Design`; `analysisRoundTripMs=323`. One `car` prediction: category 2, confidence **0.892409920692444**, box x=[538,727], y=[223,298]. This is **the smaller 640 model**, not YOLO26l-960. Earlier 960 result was a `person` from **Camera02** with 169 ms round trip. These examples differ in camera, subject and capture timestamp and therefore cannot establish relative model latency or correctness. The user reports the two YOLO models are live side by side; same-frame evaluation remains to be demonstrated.
+
+### Cross-camera same-car clarification — Cam1 and Willard (2026-11-13)
+
+**User explicitly confirms that the Cam1 YOLO26s car and Willard YOLO26l car are the same physical vehicle.** Preserve the user's identification rather than treating this as an unknown association. The camera images are different viewpoints and therefore **not a same-frame controlled comparison**, despite both capture identifiers containing `20261113_130001Z`.
+
+- Cam1: `Cam1.20261113_130001Z.1480626.17-0.dat`, YOLO26s-640, car, confidence 0.892409920692444 (89.24%), bounding box (538,223)-(727,298), analysisRoundTrip 323 ms.
+- Willard: `Willard.20261113_130001Z.5618511.17-0.dat`, YOLO26l-960, car, confidence 0.915965259075165 (91.60%), bounding box (1358,316)-(1834,487), analysisRoundTrip 237 ms.
+- Both report ONNX Runtime DirectML on NVIDIA Quadro RTX 4000 with Max-Q Design.
+
+**Confirmed cross-camera detection:** both models reported a car identified by the user as the same vehicle. Differences in camera viewpoint, scale, processing and capture mean the differing confidence and latency do **not** demonstrate one model is superior or faster.
