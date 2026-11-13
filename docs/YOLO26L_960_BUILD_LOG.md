@@ -318,3 +318,13 @@ Next: clean read-only Python 3.12 dependency/import/provider check via saved G: 
 ### Python runtime diagnostic outcome (2026-11-13)
 
 User ran the corrected saved-G: diagnostic against `C:\Program Files\CodeProject\AI\runtimes\bin\windows\python312\python.exe` (Python 3.12.4) and all four imports failed with `ModuleNotFoundError`: `numpy`, `PIL`, `onnxruntime`, `codeproject_ai_sdk`. This only establishes that the **base Python 3.12 interpreter's import path lacks these packages**. It does **not** establish the actual running YOLO26Surveillance module environment lacks them; the current production module has more than 300k successful inferences, suggesting it runs using a separate virtual environment or an alternate interpreter/package path. Next step must **inspect live python process command lines and targeted runtime virtual-environment paths, read-only**, before any installation or CodeProject.AI restart. Avoid installing packages into the base application Python or modifying/restarting the production YOLO26s runtime speculatively.
+
+### Live process evidence identifies module-local production venv (2026-11-13)
+
+User's INFINITY `Get-CimInstance Win32_Process` output:
+- PID **26396**: executable `C:\Program Files\CodeProject\AI\modules\YOLO26Surveillance\bin\windows\python312\venv\Scripts\python.exe`, command `"...\venv\Scripts\python" "...\YOLO26Surveillance\detect_adapter.py"`.
+- PID **26528**: executable `C:\Program Files\CodeProject\AI\runtimes\bin\windows\python312\python.exe`, command `"...\python.exe" "...\YOLO26Surveillance\detect_adapter.py"`.
+- Base runtime Python has pip 24.0; independent development Python `G:\YOLO26-L960\venv\Scripts\python.exe` has pip 23.2.1.
+- Both processes reference the production adapter. The separate **module-local virtualenv** is now confirmed and explains why package imports failed against base runtime. No inference yet about which process is doing the actual ONNX execution, or whether candidate module's venv has been created. The candidate has not appeared in CPAI module-list/status; activation still pending.
+
+Plan: leave live YOLO26s environment untouched; inspect its package versions and candidate module's installation state read-only. Use CodeProject.AI-supported module installation/start pathway to supply an independent runtime for the candidate and register it. C: is accepted for deployed application/runtime files; G: remains build/model source; H: excluded.
