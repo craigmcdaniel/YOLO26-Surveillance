@@ -167,3 +167,11 @@ Task Manager screenshot recorded around the test:
 - Enshrouded running under heavy settings; existing inference server also active. Whether its computation shared the same GPU is not established.
 
 **Status:** DirectML provider available and ONNX Runtime session successfully ran the filtered 960 model. These are short, synthetic-input, whole-session times, **not** end-to-end Blue Iris/CodeProject.AI latency, per-op GPU provenance, or real-world detection quality. CPU fallback has not been ruled out; assess provider assignment using profiling if needed. Do not infer a sustained maximum FPS from ten samples. Next stage: separate 960-aware adapter and real camera-image validations. Keep production YOLO26s untouched.
+
+## Stage 6 — paired real-image benchmark prepared (2026-11-13)
+
+User reports approximately 1,000+ original test images under `G:\YOLO26-L960\test-images`, including oddball subjects/file types; user reports no duplicate images. Image contents are not yet independently inventoried. Do not impose expected subjects, labels or per-camera grouping.
+
+Script committed: `scripts/benchmark-yolo26-640-vs-960.py`. It is an isolated, non-destructive, resumable paired-image test. It hashes/verifies both known ONNX models; loads both via DirectML (CPU fallback permitted); letterboxes each original image at the model's native resolution; processes eight surveillance classes at 0.25 confidence with per-class NMS IoU 0.45; writes durable JSONL for every successful image/model evaluation, plus decode/inference errors; refreshes a CSV aggregate periodically; and does not overwrite the reference or modify production. Supports JPG/JPEG/JFIF/PNG/WEBP/BMP/TIFF/GIF (first frame), including nested directories. Performance figures are `session.run()` only, do not include image decode, preprocessing or postprocessing. This is a workload- and dataset-specific comparison; differences are not a labeled accuracy/recall measurement without image ground truth.
+
+**Caveats:** keeping two GPU sessions resident may compete with Enshrouded for available VRAM, and CPU fallback could affect timing. Outcomes are not yet validated; no claims about actual accuracy or stable completion. Results path `G:\YOLO26-L960\results\stage6`. No deduplication/delete operations; no source image alterations.
