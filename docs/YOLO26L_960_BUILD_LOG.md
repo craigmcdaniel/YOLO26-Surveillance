@@ -43,7 +43,7 @@ The script incorrectly assumed **the first ONNX output** must be the filtered `[
 
 ## Pending checkpoints
 
-- [ ] Reference hash and named output verified on INFINITY.
+- [x] Reference hash and named output verified on INFINITY.
 - [ ] Actual YOLO26l export format and 960 output shape confirmed.
 - [ ] New named `surveillance_output` generated without overwriting source.
 - [ ] ONNX checker and ONNX Runtime smoke test passed.
@@ -55,3 +55,19 @@ The script incorrectly assumed **the first ONNX output** must be the filtered `[
 ## Append new evidence here
 
 Keep event time, source command/artifact, raw observed result, interpretation, correction, and SHA when relevant. Distinguish **documented**, **observed**, **inferred**, and **validated**.
+
+## Checkpoint 1 — verified on INFINITY (2026-11-13)
+
+User ran read-only reference verification and reported:
+
+```text
+SHA256: DBC9326FC46819B02E27C842E9A3132291C5B0D424012610F061EDFC44422E17
+Matches documented artifact: True
+INPUT: images [1, 3, 640, 640]
+OUTPUT: output0 [1, 84, 8400]
+OUTPUT: surveillance_output [1, 12, 8400]
+PRODUCER: Gather / SurveillanceClassFilter
+INPUTS: ['output0', 'surveillance_class_indices']
+```
+
+**Result:** authoritative artifact hash matches, source has **two outputs**, and the existing filtered output uses Gather of the raw output with a constant index tensor. The previous error was the build script validating only output 0. Reference inspection is COMPLETE; never repeat this failed assumption. Next stage is independently exporting *raw* YOLO26l at 960, preserving production and without graph edits. Ultralytics documentation says `nms=None` exports raw one-to-many outputs; `nms=False` selects the incompatible NMS-free head. Determine the actual output shape from the exported model before adding a Gather.
