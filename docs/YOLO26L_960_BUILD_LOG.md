@@ -45,7 +45,7 @@ The script incorrectly assumed **the first ONNX output** must be the filtered `[
 
 - [x] Reference hash and named output verified on INFINITY.
 - [x] Actual YOLO26l export format and 960 output shape confirmed.
-- [ ] New named `surveillance_output` generated without overwriting source.
+- [x] New named `surveillance_output` generated without overwriting source.
 - [ ] ONNX checker and ONNX Runtime smoke test passed.
 - [ ] 960 test adapter implemented.
 - [ ] DirectML benchmark on RX 9070 XT completed.
@@ -89,3 +89,20 @@ ONNX checker: passed
 ```
 
 **Status: Stage 2 verified.** The raw checkpoint was exported using `nms=None`, `dynamic=False`, `simplify=False`, `batch=1`, `device="cpu"`. This is *not* yet a surveillance-filtered ONNX. No CodeProject.AI deployment. Production YOLO26s unchanged. User prefers prioritizing detection quality at 960 resolution over resource minimization, subject to real-world benchmarks. Stage 3 should add a second `Gather`-produced `surveillance_output`, retain `output0` (matching the reference), preserve eight-class order from GitHub, validate output `[1,12,18900]` before runtime and DirectML benchmarking. Perform work in short independent steps; do not touch C:.
+
+## Checkpoint 3 — surveillance Gather output validated (2026-11-13)
+
+User ran `scripts/build-yolo26l-960-filter.py` on INFINITY and supplied successful output:
+
+```text
+Reference Gather indices: [0, 1, 2, 3, 4, 5, 6, 7, 9, 11, 19, 20]
+MODEL: G:\YOLO26-L960\yolo26l-surveillance-960.onnx
+OUTPUT: output0 [1, 84, 18900]
+OUTPUT: surveillance_output [1, 12, 18900]
+CLASSES: person, bicycle, car, motorcycle, bus, truck, cat, dog
+SHA256: 471090e1e1304ef1e48f1801e48d8e91f574e09708171bed803f08eed5e4288a
+Exit code: 0
+Production model unchanged.
+```
+
+**Stage 3 verified:** ONNX structural checker passed, `surveillance_output` added as named Gather output with the exact class selection verified against the reference model. This establishes graph structure, **not** that ONNX Runtime or DirectML can execute it, nor accuracy/speed on images. Next: independently test ONNX Runtime inference and record CPU versus DirectML providers/latency; build an isolated resolution-aware adapter afterward. Preserve source and target models.
