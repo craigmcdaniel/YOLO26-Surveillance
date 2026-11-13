@@ -1,38 +1,56 @@
-# YOLO26 Surveillance — experimental beta
+# NYAAI-DOYA — experimental YOLO26s beta
 
-Surveillance-focused YOLO26s ONNX output-slicing experiment for Blue Iris and CodeProject.AI. This repository preserves the working test artifact and CodeProject.AI adapter recovered from the development archive dated 2026-11-11.
+**Not Your Average AI — Detect Once, You Are.**
 
-## Blue Iris quick test
+Public project name: **NYAAI-DOYA**. Repository name: **YOLO26-Surveillance** (unchanged).
 
-If your existing Blue Iris AI setup supports custom ONNX models, place `YOLO26Surveillance/yolo26s-filtered-test.onnx` in your AI models folder, select it and test. This is not a full CodeProject.AI module installation.
+This `test` branch preserves working YOLO26s model integration code, experimental graph-slicing documentation, benchmarks, and subsequent development. It is not a stable or one-click-installable release.
 
-## Experimental output mapping
+## Where to get the YOLO26s model
 
-The test graph exposes `surveillance_output` with shape **[1,12,8400]**: four bounding-box channels and eight class-score channels. The adapter currently maps `person, bicycle, car, motorcycle, bus, truck, cat, dog`. **Bicycle was intentionally retained for a graph-surgery experiment.** The intended final public surveillance model has seven classes: person, car, truck, bus, motorcycle, cat and dog.
+The `yolo26s-filtered-test.onnx` binary is provided in the **original IP Cam Talk forum post attachment**, rather than committed to GitHub. The GitHub model directory contains adapter/source files and a checksum, **not the ONNX itself**. Download and extract the forum ZIP first.
 
-The original full graph output remains present in the tested file. Graph-level output selection is confirmed; removal of all unused internal computation is not yet established. The graph-transformation script was not in the provided archive and must be published separately for source-to-model reproducibility.
+Expected SHA-256:
 
-## Environments already tested
+`DBC9326FC46819B02E27C842E9A3132291C5B0D424012610F061EDFC44422E17`
 
-- **INFINITY:** Windows Server 2025, CodeProject.AI 2.9.5, RX 9070 XT with ONNX Runtime DirectML. The YOLO26 Surveillance module appears as installed v0.1.0.
-- **CHARON:** Blue Iris on NVIDIA Quadro RTX 4000. The experimental ONNX model was recognized and generated detections through the existing Blue Iris custom AI model interface.
+To verify a downloaded file on Windows:
 
-Do not equate Blue Iris's DirectML provider on NVIDIA with CUDA inference. Timings depend on whether they measure pure inference, analysis or full round-trip time. Posted screenshots are observations, not controlled benchmarks.
+```powershell
+Get-FileHash -Algorithm SHA256 -LiteralPath "PATH_TO_EXTRACTED\yolo26s-filtered-test.onnx"
+```
 
-## CodeProject.AI module
+Replace the placeholder path. If the hash differs, do not assume you have the same experimental build.
 
-`YOLO26Surveillance/` contains the Python detector, ModuleRunner adapter, manifests, ONNX and dependency information. The isolated beta installer has not been validated against a fresh CodeProject.AI installation.
+## Blue Iris: minimal native ONNX trial
 
-## Safe CHARON dry run
+If your version/configuration of Blue Iris already supports custom native ONNX models, place the extracted model in your selected AI model directory, select it in the Blue Iris AI configuration, and test it using AI Inspector. Confirm the model results on a known image and set alerts according to your existing camera configuration. This is an experimental test, not a claim of universal drop-in compatibility.
 
-On a separate test directory, run `./scripts/prepare-test.ps1` with Python 3.12. It creates a local virtual environment, installs requirements, and validates the model using CPU inference. Do **not** replace working CodeProject.AI modules or disturb Blue Iris, Neolink or Mosquitto in production.
+## Model output and class order
 
-## Release checks
+The test graph exposes `surveillance_output` with shape **[1,12,8400]**, four box channels and eight class-score channels:
 
-- Verify final seven-class channel mapping and Blue Iris labels
-- Publish the graph-slicing script
-- Verify source weights' redistribution license
-- Perform the isolated clean installer test
-- Retain the experimental `test` branch; no stable release is asserted
+`person, bicycle, car, motorcycle, bus, truck, cat, dog`
 
-The full test artifact, source and example screenshots are being staged for this branch. Until they are committed, this README is documentation only.
+Bicycle remains included in the **actual tested eight-class model**; do not silently replace it with a hypothetical seven-class mapping. This is post-inference output selection via `Gather`, **not true neural-network pruning**. The original full 80-class graph output is also retained.
+
+## Tested environment and scope
+
+- **INFINITY:** currently Windows 11, AMD RX 9070 XT, with working DirectML/CodeProject.AI YOLO26 experiments. Older development notes refer to an available Windows Server 2025 installation; do not interpret that as the current boot.
+- **CHARON:** Windows Server 2025 Datacenter, Blue Iris, NVIDIA Quadro RTX 4000, observed native ONNX/DirectML detections.
+- On-device timings differ between **pure inference**, **server processing**, and **Blue Iris round-trip analysis**. No sub-3 ms performance claim has been validated.
+
+## CodeProject.AI integration
+
+`YOLO26Surveillance/` contains the experimental SDK adapter, Python detector, settings, and dependency files. It expects `yolo26s-filtered-test.onnx` at the module path unless a model environment variable is specified. A standalone, clean-machine installer has **not** been validated. Don't overwrite an existing working module to try these development files.
+
+## Source and development
+
+- The existing YOLO26s graph transformation script has **not yet been published/recovered** for a source-to-model reproducible build.
+- The YOLO26l-960 development and deployment scripts are **different experimental artifacts**; they are not needed for the forum's YOLO26s download.
+- The planned fine-tuned eight-class head and accelerator-specific engines are future experiments.
+- Source-model licensing and redistribution permissions should be checked before presenting a formal stable release.
+
+See [IP Cam Talk posting notes](docs/IPCAM_RELEASE_NOTES.md), [test branch notes](docs/TEST_BRANCH.md), and [development history](docs/YOLO26L_960_BUILD_LOG.md).
+
+**Release positioning:** experimental, working prototype; model download stays with the forum attachment while GitHub supplies source, documentation, and the public project identity.
