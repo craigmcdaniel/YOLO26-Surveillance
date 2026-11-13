@@ -241,3 +241,9 @@ User supplied live Blue Iris AI result for capture `Camera02.20261113_142837Z.11
 ### Live Camera02 configuration clarification (2026-11-13)
 
 User clarified that this first live YOLO26l-960 detection was **straight inference with a Blue Iris `exists` filter**. Interpret the result as direct model inference evaluated against an object-presence condition, **not** proof of a conventional Blue Iris motion-triggered detection and **not** an additional separate AI confirmation pass. The exact filter expression and triggering cadence were not supplied; do not invent them. This clarification supersedes any framing that presumes motion triggers or a double-check pipeline at the Blue Iris side. The actual person detection at confidence 0.8304827213 and 169 ms analysisRoundTrip remains as recorded above.
+
+### Camera02 AI object rule screenshot — actual filter configuration (2026-11-13)
+
+Screenshot provided by user confirms the following settings in Blue Iris's `AI object` dialog: Enabled checked; Label/s `*` (wildcard); minimum confidence **50%**; minimum time **0 seconds**; Sense **Exists** selected (not Moving, Static, or Existence change); Where **Anywhere** selected (not zones or center rectangle); Action **Trigger**; firing mode **Single fire**; memo/label blank. Profile buttons are displayed but individual effective scheduling/activation cannot be reliably inferred from screenshot alone.
+
+Consequence: the reported 83.048% person detection meets the 50% confidence condition. The object-presence rule does not require a detected object to move; this screenshot itself does not independently establish every upstream image acquisition/trigger mode or full trigger cadence. Since labels are unrestricted (`*`), any class returned by the eight-class ONNX model can satisfy this rule. Preserve this as exact live configuration evidence rather than substituting an assumed narrower person filter.
