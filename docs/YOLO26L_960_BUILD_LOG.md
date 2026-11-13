@@ -296,3 +296,11 @@ State: Running
 PathName: C:\Program Files\CodeProject\AI\Server\CodeProject.AI.Server.exe
 ```
 All six candidate module files were fetched into the G: staging directory and side-installed on C: without modifying production `YOLO26Surveillance`. **Do not conflate successful file deployment with a loaded or runnable service route**. CodeProject.AI docs say module settings are discovered on server startup; new module is `AutoStart=false`. Before restart, compare currently-working module's runtime settings with new candidate and inspect available Python3.12 runtimes/SDK on the machine. Because running production detection may be in use, avoid an unplanned service restart. Once prerequisites are verified, start/discover test module and validate POST /v1/vision/yolo26l-surveillance-960 with an image.
+
+### Stage 8 runtime inventory verified (2026-11-13)
+
+User's live INFINITY read-only PowerShell output:
+- Production module `YOLO26Surveillance`: AutoStart True; FilePath `detect_adapter.py`; Runtime `python3.12`; RuntimeLocation `Local`; queue `yolo26_surveillance_queue`; Parallelism 1.
+- Candidate module `YOLO26LSurveillance960`: AutoStart False; same FilePath/Runtime/RuntimeLocation; **distinct** queue `yolo26l_surveillance_960_queue`; Parallelism 1.
+- CodeProject.AI root runtime `C:\Program Files\CodeProject\AI\runtimes\bin\windows\python312\python.exe` exists; listing also includes Python 3.12 standard-library `Lib\venv\scripts\nt\python.exe`, which is a venv template and not proof of deployed venv. Separate G: development venv Python exists.
+- Presence of DirectML, SDK, Pillow, numpy in the **actual application runtime** remains unconfirmed, as does recognition of candidate by running CPAI process. Do not restart production until confirmed. Next read-only check runs import tests on available application Python executable(s) and queries module status API.
