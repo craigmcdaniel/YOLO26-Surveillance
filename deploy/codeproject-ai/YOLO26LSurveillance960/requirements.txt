@@ -1,0 +1,4 @@
+numpy
+Pillow
+CodeProject-AI-SDK
+onnxruntime-directml
