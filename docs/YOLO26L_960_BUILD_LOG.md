@@ -49,7 +49,7 @@ The script incorrectly assumed **the first ONNX output** must be the filtered `[
 - [x] ONNX checker and ONNX Runtime CPU smoke test passed.
 - [ ] 960 test adapter implemented.
 - [x] Initial DirectML concurrent-load runtime test on RX 9070 XT completed (full GPU allocation not verified).
-- [ ] Detection quality compared on identical camera images.
+- [x] Initial prediction-count and latency comparison completed on identical camera images (correctness review pending).
 - [ ] Source-to-model transformation script committed for reproducibility.
 
 ## Append new evidence here
@@ -175,3 +175,23 @@ User reports approximately 1,000+ original test images under `G:\YOLO26-L960\tes
 Script committed: `scripts/benchmark-yolo26-640-vs-960.py`. It is an isolated, non-destructive, resumable paired-image test. It hashes/verifies both known ONNX models; loads both via DirectML (CPU fallback permitted); letterboxes each original image at the model's native resolution; processes eight surveillance classes at 0.25 confidence with per-class NMS IoU 0.45; writes durable JSONL for every successful image/model evaluation, plus decode/inference errors; refreshes a CSV aggregate periodically; and does not overwrite the reference or modify production. Supports JPG/JPEG/JFIF/PNG/WEBP/BMP/TIFF/GIF (first frame), including nested directories. Performance figures are `session.run()` only, do not include image decode, preprocessing or postprocessing. This is a workload- and dataset-specific comparison; differences are not a labeled accuracy/recall measurement without image ground truth.
 
 **Caveats:** keeping two GPU sessions resident may compete with Enshrouded for available VRAM, and CPU fallback could affect timing. Outcomes are not yet validated; no claims about actual accuracy or stable completion. Results path `G:\YOLO26-L960\results\stage6`. No deduplication/delete operations; no source image alterations.
+
+## Checkpoint 6 — completed paired real-image benchmark (2026-11-13)
+
+User supplied completed console output for `scripts/benchmark-yolo26-640-vs-960.py` on INFINITY. 862 image files were detected and **862 complete matched image/model pairs** were processed in 71.8 seconds. Both DirectML+CPU-fallback sessions reported active. Production unchanged. Benchmark exited with code 0. One non-fatal Python `SyntaxWarning: invalid escape sequence '\\Y'` arose from the leading documentation string; no runtime failure. Structured output files: `G:\YOLO26-L960\results\stage6\results.jsonl` and `summary.csv`.
+
+| Class | YOLO26s-640 | YOLO26l-960 |
+| --- | ---: | ---: |
+| person | 347 | 407 |
+| bicycle | 15 | 10 |
+| car | 381 | 375 |
+| motorcycle | 1 | 6 |
+| bus | 0 | 0 |
+| truck | 151 | 191 |
+| cat | 12 | 14 |
+| dog | 5 | 11 |
+| **Total** | **912** | **1014** |
+
+YOLO26s-640: 518 images with >=1 detection, median `session.run` 4.61 ms, mean 5.08 ms.
+YOLO26l-960: 509 images with >=1 detection, median `session.run` 24.07 ms, mean 24.29 ms.
+YOLO26l had 102 more predictions (+11.18%), 9 fewer images with any prediction, and median runtime approximately 5.22x YOLO26s. These are paired workload measurements at a shared 0.25 score cutoff and classwise NMS IoU 0.45. Counts are **not** proof of recall, precision, correctness, or verified false positives; labels of source images have not been manually established. Benchmark set contains diverse camera snapshots and user-described oddball images, with no duplicate processing reported. The output JSONL can be analyzed to identify disagreements and review corresponding images. **Next:** generate a per-image disagreement report and inspect sample images to distinguish improved true positives from new false positives; then develop/validate a resolution-aware adapter. Preserve production and raw source images.
