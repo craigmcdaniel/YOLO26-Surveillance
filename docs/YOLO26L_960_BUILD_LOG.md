@@ -46,7 +46,7 @@ The script incorrectly assumed **the first ONNX output** must be the filtered `[
 - [x] Reference hash and named output verified on INFINITY.
 - [x] Actual YOLO26l export format and 960 output shape confirmed.
 - [x] New named `surveillance_output` generated without overwriting source.
-- [ ] ONNX checker and ONNX Runtime smoke test passed.
+- [x] ONNX checker and ONNX Runtime CPU smoke test passed.
 - [ ] 960 test adapter implemented.
 - [ ] DirectML benchmark on RX 9070 XT completed.
 - [ ] Detection quality compared on identical camera images.
@@ -106,3 +106,21 @@ Production model unchanged.
 ```
 
 **Stage 3 verified:** ONNX structural checker passed, `surveillance_output` added as named Gather output with the exact class selection verified against the reference model. This establishes graph structure, **not** that ONNX Runtime or DirectML can execute it, nor accuracy/speed on images. Next: independently test ONNX Runtime inference and record CPU versus DirectML providers/latency; build an isolated resolution-aware adapter afterward. Preserve source and target models.
+
+## Checkpoint 4 — CPU runtime smoke test passed (2026-11-13)
+
+User ran `scripts/smoke-yolo26l-960.py` in the isolated INFINITY build environment:
+
+```text
+Available providers: ['AzureExecutionProvider', 'CPUExecutionProvider']
+Input: images [1, 3, 960, 960]
+Outputs: {'output0': [1, 84, 18900], 'surveillance_output': [1, 12, 18900]}
+EXECUTION: PASS
+Gather values: exact match to raw selected channels
+Output finite: PASS
+Single-run CPU time: 298.4 ms (not a benchmark)
+Production unchanged.
+Runtime test exit code: 0
+```
+
+**Stage 4 verified:** synthetic-input CPU execution passed; the filtered output exactly matches selection of the raw tensor, with no non-finite values. This does **not** establish image detection quality or DirectML performance. The installed `onnxruntime` build presently exposes Azure/CPU only; install/check `onnxruntime-directml` in the isolated `G:\YOLO26-L960\venv` as the next independently testable stage. Do not alter deployed CodeProject.AI or other Python environments. No claim that 298.4 ms represents steady-state CPU throughput.
