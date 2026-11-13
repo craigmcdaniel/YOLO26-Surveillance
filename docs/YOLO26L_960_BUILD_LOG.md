@@ -124,3 +124,17 @@ Runtime test exit code: 0
 ```
 
 **Stage 4 verified:** synthetic-input CPU execution passed; the filtered output exactly matches selection of the raw tensor, with no non-finite values. This does **not** establish image detection quality or DirectML performance. The installed `onnxruntime` build presently exposes Azure/CPU only; install/check `onnxruntime-directml` in the isolated `G:\YOLO26-L960\venv` as the next independently testable stage. Do not alter deployed CodeProject.AI or other Python environments. No claim that 298.4 ms represents steady-state CPU throughput.
+
+## Checkpoint 5A — DirectML runtime installed (2026-11-13)
+
+User provided INFINITY PowerShell output confirming successful installation of `onnxruntime-directml==1.24.4` into isolated `G:\YOLO26-L960\venv`, and reported:
+
+```text
+ONNX Runtime version: 1.24.4
+Available execution providers: ['DmlExecutionProvider', 'CPUExecutionProvider']
+=== STAGE 5A COMPLETE ===
+```
+
+**Verified:** DirectML provider is available in the isolated runtime. Not yet verified: successful model GPU execution, provider node allocation or GPU latency. Next stage: separate non-destructive DirectML model session creation, warmup and timed runs with `enable_mem_pattern=False`, `execution_mode=ORT_SEQUENTIAL` and optional CPU fallback controls, logging actual session providers. Keep all files on G: and production untouched.
+
+**Future branch idea (deferred):** portable backend support for ROCm and native CUDA as alternatives to DirectML. Do not conflate available runtime providers with tested performance or commit these backends into current production work.
