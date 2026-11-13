@@ -44,7 +44,7 @@ The script incorrectly assumed **the first ONNX output** must be the filtered `[
 ## Pending checkpoints
 
 - [x] Reference hash and named output verified on INFINITY.
-- [ ] Actual YOLO26l export format and 960 output shape confirmed.
+- [x] Actual YOLO26l export format and 960 output shape confirmed.
 - [ ] New named `surveillance_output` generated without overwriting source.
 - [ ] ONNX checker and ONNX Runtime smoke test passed.
 - [ ] 960 test adapter implemented.
@@ -71,3 +71,21 @@ INPUTS: ['output0', 'surveillance_class_indices']
 ```
 
 **Result:** authoritative artifact hash matches, source has **two outputs**, and the existing filtered output uses Gather of the raw output with a constant index tensor. The previous error was the build script validating only output 0. Reference inspection is COMPLETE; never repeat this failed assumption. Next stage is independently exporting *raw* YOLO26l at 960, preserving production and without graph edits. Ultralytics documentation says `nms=None` exports raw one-to-many outputs; `nms=False` selects the incompatible NMS-free head. Determine the actual output shape from the exported model before adding a Gather.
+
+## Checkpoint 2 — raw YOLO26l 960 ONNX export verified (2026-11-13)
+
+User supplied INFINITY console output:
+
+```text
+Environment: Ultralytics 8.4.212, Python 3.12.0, torch 2.15.0+cpu
+Checkpoint: G:\YOLO26-L960\yolo26l.pt (50.7 MB)
+YOLO26l fused: 188 layers, 24,807,420 parameters, 196.3 GFLOPs
+ONNX: opset 18; export succeeded
+Model: G:\YOLO26-L960\yolo26l.onnx
+File length: 99,735,771 bytes (95.1 MB as reported by exporter)
+INPUT: images [1, 3, 960, 960]
+OUTPUT: output0 [1, 84, 18900]
+ONNX checker: passed
+```
+
+**Status: Stage 2 verified.** The raw checkpoint was exported using `nms=None`, `dynamic=False`, `simplify=False`, `batch=1`, `device="cpu"`. This is *not* yet a surveillance-filtered ONNX. No CodeProject.AI deployment. Production YOLO26s unchanged. User prefers prioritizing detection quality at 960 resolution over resource minimization, subject to real-world benchmarks. Stage 3 should add a second `Gather`-produced `surveillance_output`, retain `output0` (matching the reference), preserve eight-class order from GitHub, validate output `[1,12,18900]` before runtime and DirectML benchmarking. Perform work in short independent steps; do not touch C:.
