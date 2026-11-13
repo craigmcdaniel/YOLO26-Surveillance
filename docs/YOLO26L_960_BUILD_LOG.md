@@ -279,3 +279,20 @@ User-provided PowerShell inventory:
 - Previous deployment run **stopped at missing `H:\CodeProjectAI\modules`** before any module install; previous H: location was stale. The user clarified OS drive C: is acceptable for installed applications, but project development/model builds and artifacts remain on G:.
 
 Corrected `scripts/deploy-yolo26l-960-cpai.ps1` on branch `test` now checks actual `C:\Program Files\CodeProject\AI\modules`, installs **only six candidate module code/config/install files** into a new `YOLO26LSurveillance960` directory, and deliberately **does not copy ONNX to C:**. New test `detect_adapter.py` defaults to `G:\YOLO26-L960\yolo26l-surveillance-960.onnx` (override via `YOLO26_SURVEILLANCE_MODEL` if needed). Staging, source model, source verification, archives remain G:. Existing YOLO26s module unchanged. This corrected deployment has **not yet been run or verified**. AutoStart remains false and service restart is not performed; new API route is not yet live. Need first verify deployment output and Python runtime integration before activation.
+
+### Stage 8 deployment succeeded — files installed (2026-11-13)
+
+User ran corrected deployment in elevated INFINITY PowerShell (`PS C:\WINDOWS\system32>`) and supplied output confirming:
+```text
+=== MODULE FILES INSTALLED ===
+Directory: C:\Program Files\CodeProject\AI\modules\YOLO26LSurveillance960
+Route: vision/yolo26l-surveillance-960
+ONNX stays on G: G:\YOLO26-L960\yolo26l-surveillance-960.onnx
+AutoStart: false
+Service not restarted; route not yet active.
+
+Name: CodeProject.AI Server
+State: Running
+PathName: C:\Program Files\CodeProject\AI\Server\CodeProject.AI.Server.exe
+```
+All six candidate module files were fetched into the G: staging directory and side-installed on C: without modifying production `YOLO26Surveillance`. **Do not conflate successful file deployment with a loaded or runnable service route**. CodeProject.AI docs say module settings are discovered on server startup; new module is `AutoStart=false`. Before restart, compare currently-working module's runtime settings with new candidate and inspect available Python3.12 runtimes/SDK on the machine. Because running production detection may be in use, avoid an unplanned service restart. Once prerequisites are verified, start/discover test module and validate POST /v1/vision/yolo26l-surveillance-960 with an image.
