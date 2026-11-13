@@ -48,7 +48,7 @@ The script incorrectly assumed **the first ONNX output** must be the filtered `[
 - [x] New named `surveillance_output` generated without overwriting source.
 - [x] ONNX checker and ONNX Runtime CPU smoke test passed.
 - [ ] 960 test adapter implemented.
-- [ ] DirectML benchmark on RX 9070 XT completed.
+- [x] Initial DirectML concurrent-load runtime test on RX 9070 XT completed (full GPU allocation not verified).
 - [ ] Detection quality compared on identical camera images.
 - [ ] Source-to-model transformation script committed for reproducibility.
 
@@ -142,3 +142,28 @@ Available execution providers: ['DmlExecutionProvider', 'CPUExecutionProvider']
 ## Checkpoint 5B — concurrent workload conditions (2026-11-13, before benchmark results)
 
 User reports that while testing YOLO26l-960, **Enshrouded is running at demanding graphics settings** and **another server is actively performing inference**. Treat the forthcoming DirectML latency values as measurements under this concurrent workload, **not** idle-system or isolated-GPU benchmarks. The statement does not establish whether the other inference workload runs on INFINITY's GPU, another host's GPU, or over the network; verify resource contention before attribution. Record workload state alongside latency and compare against a later idle run if useful. Do not alter game, existing model, or production services for this test.
+
+## Checkpoint 5B — DirectML concurrent-load inference passed (2026-11-13)
+
+INFINITY user-reported benchmark results with Enshrouded running at demanding settings and another server active in inference:
+
+```text
+Available providers: ['DmlExecutionProvider', 'CPUExecutionProvider']
+Session providers: ['DmlExecutionProvider', 'CPUExecutionProvider']
+Output: (1, 12, 18900)
+3 warm-up runs, 10 measured synthetic-input session.run calls
+Median: 27.03 ms
+Minimum: 22.70 ms
+Maximum: 31.69 ms
+Exit code: 0
+Production unchanged
+```
+
+Task Manager screenshot recorded around the test:
+- AMD Radeon RX 9070 XT, 3D utilization 96%; Compute 0 graph showed 0% at screenshot instant (not a definitive engine-assignment trace).
+- Dedicated VRAM 10.7 / 16.0 GB; total GPU memory 12.1 / 31.8 GB; shared 1.3 / 15.8 GB.
+- GPU temperature 51°C; system RAM 21.6 / 31.6 GB (68%); CPU around 10%.
+- Driver version shown 32.0.32015.2008, dated 2026-09-28.
+- Enshrouded running under heavy settings; existing inference server also active. Whether its computation shared the same GPU is not established.
+
+**Status:** DirectML provider available and ONNX Runtime session successfully ran the filtered 960 model. These are short, synthetic-input, whole-session times, **not** end-to-end Blue Iris/CodeProject.AI latency, per-op GPU provenance, or real-world detection quality. CPU fallback has not been ruled out; assess provider assignment using profiling if needed. Do not infer a sustained maximum FPS from ten samples. Next stage: separate 960-aware adapter and real camera-image validations. Keep production YOLO26s untouched.
