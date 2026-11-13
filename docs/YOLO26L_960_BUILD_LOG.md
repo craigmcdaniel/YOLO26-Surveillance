@@ -138,3 +138,7 @@ Available execution providers: ['DmlExecutionProvider', 'CPUExecutionProvider']
 **Verified:** DirectML provider is available in the isolated runtime. Not yet verified: successful model GPU execution, provider node allocation or GPU latency. Next stage: separate non-destructive DirectML model session creation, warmup and timed runs with `enable_mem_pattern=False`, `execution_mode=ORT_SEQUENTIAL` and optional CPU fallback controls, logging actual session providers. Keep all files on G: and production untouched.
 
 **Future branch idea (deferred):** portable backend support for ROCm and native CUDA as alternatives to DirectML. Do not conflate available runtime providers with tested performance or commit these backends into current production work.
+
+## Checkpoint 5B — concurrent workload conditions (2026-11-13, before benchmark results)
+
+User reports that while testing YOLO26l-960, **Enshrouded is running at demanding graphics settings** and **another server is actively performing inference**. Treat the forthcoming DirectML latency values as measurements under this concurrent workload, **not** idle-system or isolated-GPU benchmarks. The statement does not establish whether the other inference workload runs on INFINITY's GPU, another host's GPU, or over the network; verify resource contention before attribution. Record workload state alongside latency and compare against a later idle run if useful. Do not alter game, existing model, or production services for this test.
