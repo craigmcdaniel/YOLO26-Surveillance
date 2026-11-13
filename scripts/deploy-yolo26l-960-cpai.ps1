@@ -5,7 +5,7 @@ $ErrorActionPreference = "Stop"
 $Root = "G:\YOLO26-L960"
 $Model = Join-Path $Root "yolo26l-surveillance-960.onnx"
 $Stage = Join-Path $Root "cpai-deploy\YOLO26LSurveillance960"
-$Modules = "H:\CodeProjectAI\modules"
+$Modules = "C:\Program Files\CodeProject\AI\modules"
 $Target = Join-Path $Modules "YOLO26LSurveillance960"
 $Expected = "471090E1E1304EF1E48F1801E48D8E91F574E09708171BED803F08EED5E4288A"
 $Base = "https://raw.githubusercontent.com/craigmcdaniel/YOLO26-Surveillance/test/deploy/codeproject-ai/YOLO26LSurveillance960"
@@ -20,7 +20,7 @@ if (-not (Test-Path -LiteralPath $Model -PathType Leaf)) {
     return
 }
 if (-not (Test-Path -LiteralPath $Modules -PathType Container)) {
-    Write-Host "STOPPED: expected H: module directory missing; verify installation location"
+    Write-Host "STOPPED: CodeProject.AI module installation directory missing"
     return
 }
 if (Test-Path -LiteralPath $Target) {
@@ -53,14 +53,18 @@ try {
     if ($Launch.AutoStart -or $Route -ne "vision/yolo26l-surveillance-960") {
         throw "Module activation or route differs from expected test configuration"
     }
-    Copy-Item -LiteralPath $Stage -Destination $Target -Recurse
-    $TargetHash = (Get-FileHash -LiteralPath (Join-Path $Target "yolo26l-surveillance-960.onnx") -Algorithm SHA256).Hash
-    if ($TargetHash -ne $Expected) {
-        throw "Installed module model hash mismatch"
+    New-Item -Path $Target -ItemType Directory -ErrorAction Stop | Out-Null
+    foreach ($Name in $Names) {
+        Copy-Item -LiteralPath (Join-Path $Stage $Name) -Destination (Join-Path $Target $Name) -ErrorAction Stop
+    }
+    $InstalledAdapter = Get-Content -LiteralPath (Join-Path $Target "detect_adapter.py") -Raw
+    if (-not $InstalledAdapter.Contains($Model)) {
+        throw "Installed adapter does not reference the model on G:"
     }
     Write-Host "=== MODULE FILES INSTALLED ==="
     Write-Host "Directory: $Target"
     Write-Host "Route: $Route"
+    Write-Host "ONNX stays on G: $Model"
     Write-Host "AutoStart: false"
     Write-Host "Service not restarted; route not yet active."
     Get-CimInstance Win32_Service | Where-Object { $_.Name -match "CodeProject" } | Select-Object Name, State, PathName | Format-List
