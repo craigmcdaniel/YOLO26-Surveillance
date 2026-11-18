@@ -51,6 +51,8 @@ Bicycle remains included in the **actual tested eight-class model**; do not sile
 - The planned fine-tuned eight-class head and accelerator-specific engines are future experiments.
 - Source-model licensing and redistribution permissions should be checked before presenting a formal stable release.
 
+For the separate **ARGUS / PANOPTES** GPU-P/ROCm training, TensorBoard, CVAT, and image analysis chronology, begin with the [PANOPTES milestone index](docs/PANOPTES_MILESTONES.md). The AMD container GPU compute path has already been verified; do not interpret absence of a host `/dev/kfd` device or host Python packages as lack of working container GPU inference.
+
 See [IP Cam Talk posting notes](docs/IPCAM_RELEASE_NOTES.md), [test branch notes](docs/TEST_BRANCH.md), and [development history](docs/YOLO26L_960_BUILD_LOG.md).
 
 **Release positioning:** experimental, working prototype; model download stays with the forum attachment while GitHub supplies source, documentation, and the public project identity.
