@@ -1,6 +1,6 @@
 # ARGUS model-analysis workbench — proposed, not deployed
 
-Status: **planning / awaiting ARGUS boot and read-only environment audit**. No packages have been installed on ARGUS for this work as of this note. Keep production INFINITY CodeProject.AI, CHARON Frigate, and Blue Iris unchanged.
+Status: **ARGUS boot and host-level read-only audit completed 2026-11-18; new FiftyOne/Albumentations analysis environment not yet deployed**. See [PANOPTES milestone index](PANOPTES_MILESTONES.md) for the already-working AMD ROCm-in-Docker, training, TensorBoard and CVAT environments. Do not mistake host Python lacking torch for a missing container runtime. Keep production INFINITY CodeProject.AI, CHARON Frigate, and Blue Iris unchanged.
 
 ## Objective
 
@@ -51,7 +51,7 @@ Audit before installation; isolate installations from PANOPTES training and all 
 
 ## ARGUS readiness audit — next session
 
-**Read-only first:** OS/kernel, GPU exposure, available ONNX providers and Python versions/environments, free disk/available mountpoints, current PANOPTES/CVAT services and storage. Confirm a non-system experiment destination before any installation or copying. Avoid INFINITY C: for project files or staging.
+**Completed host audit 2026-11-18:** Ubuntu 24.04.5/kernel 7.0.0-43, `/dev/dxg` and `dxgkrnl` present, CVAT workers running, ~4.2 GiB RAM available, 117 GB local disk free and photostore mounted. Container GPU compute had *already* passed with AMD ROCDXG on 2026-11-16. Remaining: inspect existing Docker/PANOPTES environments using the existing sudo access pattern before adding anything. Confirm a non-system experiment destination before any installation or copying. Avoid INFINITY C: for project files or staging.
 
 After audit: choose isolated venv/container and test small, labeled batch. Do not install FiftyOne/Albumentations into existing training or production Python environments by default. Record environment details and the experiment run in Git.
 
