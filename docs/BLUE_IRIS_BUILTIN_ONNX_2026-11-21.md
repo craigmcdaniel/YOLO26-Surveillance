@@ -22,6 +22,18 @@ Source: screenshots of Blue Iris Settings > AI and Blue Iris Status > AI Inspect
 | External server address | Not selected; UI shows `127.0.0.1` in inactive field |
 | Restart interval | 0 min |
 
+## Triggering, motion, and video analysis (operator-confirmed)
+
+**Critical architecture clarification:** Blue Iris's own motion detection is **disabled**. Blue Iris is used for **AI inference**, not local motion-trigger generation.
+
+- **Trigger source:** Frigate produces the initiating alert/event.
+- **Transport/orchestration:** Frigate event → MQTT → Node-RED on THOTH → Blue Iris external nudge/trigger on CHARON.
+- **Blue Iris behavior:** After receiving a nudge, Blue Iris performs built-in ONNX inference against the camera video. The operator describes the workload as **constant scanning of a 2560 × 1440 (1440p) video feed**.
+- **Important distinction:** Do not interpret AI Inspector's repeated analyses as evidence that Blue Iris motion detection is enabled. They are AI inference evaluations. The available screenshots do not independently establish precise per-frame sampling cadence or the duration of inference following each external trigger.
+- **Model execution:** Built-in Blue Iris provider with DirectML on the NVIDIA Quadro RTX 4000 Max-Q; no local or external CodeProject.AI server is selected for the observed inference path.
+
+This configuration is intentional: **Frigate decides when to nudge Blue Iris; Blue Iris performs the AI inference.** Do not re-enable Blue Iris motion detection as part of documentation or integration work.
+
 ## Live AI Inspector observations
 
 - AI Inspector showed multiple detections on a cat near the steps.
@@ -37,13 +49,33 @@ The AI Inspector event filename begins `Backyard`, while the video overlay reads
 
 ## Architecture and follow-up
 
-For this observed Blue Iris processing path:
+For this observed externally triggered Blue Iris processing path:
 
 ```text
-Camera frame -> Blue Iris built-in AI -> ONNX model(s)
-                                -> DirectML / NVIDIA Quadro RTX 4000 Max-Q
+Frigate detection / alert
+         |
+         v
+  MQTT event on CHARON
+         |
+         v
+Node-RED bridge on THOTH
+         |
+         v
+Blue Iris external nudge / trigger on CHARON
+         |
+         v
+Blue Iris AI inference on 2560 x 1440 camera video
+         |
+         +--> yolov8s.onnx (primary)
+         +--> yolo26s-filtered-test (additional)
+         +--> ipcam-animal (additional)
+         |
+         v
+Built-in DirectML / NVIDIA Quadro RTX 4000 Max-Q
+
+Blue Iris motion detection: DISABLED
 ```
 
-This is **not** the same as asserting that Frigate, MQTT, Node-RED, or CodeProject.AI processes are absent from other camera/event paths. Those integrations remain separate and should be assessed individually.
+The diagrams distinguish **upstream event triggering** from **Blue Iris's inference workload**. Frigate, MQTT, and Node-RED are parts of the observed trigger pipeline, rather than optional unrelated components. CodeProject.AI work exists separately and is not the selected AI provider for these Blue Iris detections.
 
 Evidence supports successful live use of the filtered ONNX model in Blue Iris; it does not establish a controlled accuracy benchmark or universal performance characteristics. Preserve original screenshots and timestamps when a formal benchmarking record is created.
