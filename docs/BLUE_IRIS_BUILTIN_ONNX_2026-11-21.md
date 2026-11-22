@@ -24,15 +24,15 @@ Source: screenshots of Blue Iris Settings > AI and Blue Iris Status > AI Inspect
 
 ## Triggering, motion, and video analysis (operator-confirmed)
 
-**Critical architecture clarification:** Blue Iris's own motion detection is **disabled**. Blue Iris is used for **AI inference**, not local motion-trigger generation.
+**Critical architecture clarification:** Blue Iris's own motion detection is **disabled**, but **Blue Iris performs its own independent ongoing AI scanning of the 2560 × 1440 video feed**. It is **not dependent on Frigate nudges to run inference**. Frigate nudges are an additional external event/trigger path.
 
 - **Trigger source:** Frigate produces the initiating alert/event.
 - **Transport/orchestration:** Frigate event → MQTT → Node-RED on THOTH → Blue Iris external nudge/trigger on CHARON.
-- **Blue Iris behavior:** After receiving a nudge, Blue Iris performs built-in ONNX inference against the camera video. The operator describes the workload as **constant scanning of a 2560 × 1440 (1440p) video feed**.
+- **Blue Iris behavior:** Blue Iris continuously scans the 2560 × 1440 (1440p) camera video with built-in ONNX inference **on its own, independently of Frigate**; it also accepts external nudges originating from Frigate via Node-RED.
 - **Important distinction:** Do not interpret AI Inspector's repeated analyses as evidence that Blue Iris motion detection is enabled. They are AI inference evaluations. The available screenshots do not independently establish precise per-frame sampling cadence or the duration of inference following each external trigger.
 - **Model execution:** Built-in Blue Iris provider with DirectML on the NVIDIA Quadro RTX 4000 Max-Q; no local or external CodeProject.AI server is selected for the observed inference path.
 
-This configuration is intentional: **Frigate decides when to nudge Blue Iris; Blue Iris performs the AI inference.** Do not re-enable Blue Iris motion detection as part of documentation or integration work.
+This configuration is intentional: **two independent pathways coexist** — native ongoing Blue Iris AI scanning of the video feed, and Frigate-originated external nudges via Node-RED. Neither requires enabling Blue Iris motion detection. Do not re-enable Blue Iris motion detection as part of documentation or integration work.
 
 ## Live AI Inspector observations
 
@@ -49,33 +49,33 @@ The AI Inspector event filename begins `Backyard`, while the video overlay reads
 
 ## Architecture and follow-up
 
-For this observed externally triggered Blue Iris processing path:
+The two concurrent pathways are:
 
 ```text
-Frigate detection / alert
+PATH A — Blue Iris autonomous inference (independent of Frigate)
+
+2560 x 1440 camera video
          |
          v
-  MQTT event on CHARON
+Blue Iris built-in AI, ongoing independent scanning
          |
          v
-Node-RED bridge on THOTH
+ONNX models (yolov8s primary; yolo26s-filtered-test and ipcam-animal additional)
+         |
+         v
+DirectML / NVIDIA Quadro RTX 4000 Max-Q
+
+
+PATH B — External event nudge
+
+Frigate detection / alert -> MQTT on CHARON -> Node-RED on THOTH
          |
          v
 Blue Iris external nudge / trigger on CHARON
-         |
-         v
-Blue Iris AI inference on 2560 x 1440 camera video
-         |
-         +--> yolov8s.onnx (primary)
-         +--> yolo26s-filtered-test (additional)
-         +--> ipcam-animal (additional)
-         |
-         v
-Built-in DirectML / NVIDIA Quadro RTX 4000 Max-Q
 
-Blue Iris motion detection: DISABLED
+Blue Iris native motion detection: DISABLED
 ```
 
-The diagrams distinguish **upstream event triggering** from **Blue Iris's inference workload**. Frigate, MQTT, and Node-RED are parts of the observed trigger pipeline, rather than optional unrelated components. CodeProject.AI work exists separately and is not the selected AI provider for these Blue Iris detections.
+**Correction history:** An earlier version incorrectly implied Blue Iris only inferred after a Frigate nudge. Operator explicitly corrected that Blue Iris performs independent continuous inference, in addition to receiving Frigate nudges. The exact cadence, scheduling, and post-nudge behavior were not measured here; do not invent them. CodeProject.AI exists separately and is not the selected AI provider for the documented Blue Iris inference.
 
 Evidence supports successful live use of the filtered ONNX model in Blue Iris; it does not establish a controlled accuracy benchmark or universal performance characteristics. Preserve original screenshots and timestamps when a formal benchmarking record is created.
